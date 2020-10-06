@@ -3,15 +3,21 @@ import scipy as sp
 from scipy import signal
 from scipy.signal import StateSpace
 import time
-import matplotlib.pyplot as plt
-plt.rc('text', usetex=True)
-plt.rc('font', size=24)
-from matplotlib import animation
-from matplotlib import patches
-import data_loader
 import cvxpy as cp
 import copy
 import control
+
+# Custom libraries
+import data_loader
+
+# Plot tools
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+from matplotlib import patches
+plt.rc('text', usetex=True)
+plt.rc('font', size=16)
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+from matplotlib import animation
 
 
 class StateSpace(object):
@@ -418,8 +424,9 @@ class DMDcsp(object):
 
 
 
-    def plot_model_response(self, sys, grid):
+    def plot_model_response(self, sys_i, grid):
 
+        sys = self.rsys[sys_i]
         x0 = np.linalg.pinv(sys.C) @ self.Y0[:,0]
         xdmd, ydmd = sys.lsim(x0, self.U0)
 
@@ -499,6 +506,203 @@ class DMDcsp(object):
             return cont
 
         anim = animation.FuncAnimation(fig, animate, frames = range(0,self.p,4), interval=200)
+
+        return anim
+
+
+
+    def plot_model_statistics(self, sys_i):
+
+        """ Plot sparse model statistics vs the full model """
+
+        order = self.sp_stats['nx']
+        Ploss = self.sp_stats['P_loss']
+        z0 = self.sp_stats['z_0']
+        nx = self.rsys[sys_i].nx
+
+        order_uq, indices = np.unique(order, return_index=True)
+        Ploss_uq = Ploss[indices]
+
+        m_size = 50
+        spm_size = 50
+
+        # Plot percentage loss
+        fig, axs = plt.subplots(1, figsize=(6,4), facecolor='w', edgecolor='k')
+        plt.subplots_adjust(hspace=0.6, left=0.18, right=0.95, top=0.95, bottom=0.18)
+
+        axs.plot(order_uq, Ploss_uq, c='k', zorder=9, clip_on=False)
+        axs.scatter(order_uq, Ploss_uq, s=m_size, marker='o', facecolor='none', edgecolor='k', zorder=10, clip_on=False)
+        axs.scatter(order[sys_i], Ploss[sys_i], s=spm_size, marker='x', color='darkred', zorder=11, clip_on=False)
+
+        axs.set_axisbelow(True)
+        axs.set_xlabel('$n_x$')
+        axs.set_ylabel('$P_{\\mathrm{error}},\ \%$')
+    #   axs.set_xticks(np.arange(0, 31, 5))
+    #   axs.set_yticks(np.arange(0, 101, 20))
+        plt.grid(True)
+    #   axs.set_xlim([0,30])
+    #   axs.set_ylim([0,100])
+        plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/Ploss.eps')
+
+
+        # Plot eigenvalues
+        lamb = np.diag(self.Lambda)
+        lamb_sp = self.sys_eig[sys_i]
+        print('eigenvalue magnitudes:')
+        print(np.abs(lamb_sp))
+        fig, axs = plt.subplots(1, figsize=(6,4), facecolor='w', edgecolor='k')
+        plt.subplots_adjust(hspace=0.6, left=0.22, right=0.95, top=0.95, bottom=0.18)
+
+        # Unit circle
+        circle = Circle((0,0), 1.0, edgecolor='k', facecolor='none', linewidth=1)
+        axs.add_artist(circle)
+
+        # Eigenvalues of full system
+        axs.scatter(np.real(lamb), np.imag(lamb), s=m_size, marker='o', facecolor='none', edgecolor='k', zorder=15, clip_on=False)
+
+        # Eigenvalues of sparse system
+        axs.scatter(np.real(lamb_sp), np.imag(lamb_sp), s=spm_size, marker='x', color='darkred', zorder=16, clip_on=False)
+
+        axs.set_axisbelow(True)
+        axs.set_xlabel('$\mathrm{Re}(\lambda_i)$')
+        axs.set_ylabel('$\mathrm{Im}(\lambda_i)$')
+    #   axs.set_xticks(np.arange(0.97, 1.02, 0.01))
+    #   axs.set_yticks(np.arange(-0.2, 0.25, 0.1))
+    #   axs.set_xlim([0.97, 1.005])
+    #   axs.set_ylim([-0.25, 0.25])
+        plt.grid(True)
+        plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/eigenvalues.eps')
+
+
+        # Plot frequencies
+        Ts = 5.0 * 0.00125
+
+        # Full system
+        freq = np.abs(np.imag(np.log(lamb))/(2.0*np.pi)/Ts)
+        ampl = np.abs(z0[0])
+
+        # Sparse system
+        freq_sp = np.abs(np.imag(np.log(lamb_sp))/(2.0*np.pi)/Ts)
+        ampl_sp = np.abs(z0[sys_i][:nx])
+
+        fig, axs = plt.subplots(1, figsize=(6,4), facecolor='w', edgecolor='k')
+        plt.subplots_adjust(hspace=0.6, left=0.22, right=0.95, top=0.95, bottom=0.2)
+
+        axs.scatter(freq, ampl, s=m_size, marker='o', facecolor='none', edgecolor='k', zorder=10, clip_on=False)
+        axs.scatter(freq_sp, ampl_sp, s=spm_size, marker='x', color='darkred', zorder=11, clip_on=False)
+        axs.set_axisbelow(True)
+        axs.set_xlabel('$\mathrm{Im}(\log(\lambda_i))$')
+        axs.set_ylabel('$\|x(0)\|$')
+    #   axs.set_xlim([0, 6])
+    #   axs.set_ylim([0, 100])
+    #   axs.set_xticks(np.arange(0, 6.5, 1.0))
+    #   axs.set_yticks(np.arange(0, 101, 20))
+        plt.grid(True)
+        plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/amplitudes.eps')
+
+        plt.show()
+
+
+
+    def validate_model(self, sys_i, data):
+
+        # Check grid compatibitily
+        if (self.ny != data.grid.n_points): 
+            raise ValueError("DMDcsp.validate_model: the given snapshot data grid does not match the model's output size")
+
+        U0 = data.U0
+        Y0 = data.Y0
+        grid = data.grid
+        n_steps = U0.shape[1]
+
+        print('Validation: Simulating %d time steps' % n_steps)
+
+        # Simulate system response
+        sys = self.rsys[sys_i]
+        x0 = np.linalg.pinv(sys.C) @ data.Y0[:,0]
+        xdmd, ydmd = sys.lsim(x0, data.U0)
+
+        nlevels = 41
+        vmin = -0.1
+        vmax = 0.1
+
+        X = grid.X()
+        Y = grid.Y()
+        Z = grid.Z()
+        xmax = np.max(X)
+        z_mid = (X.shape[2] - 1) // 2
+        X_mid = X[:,:,z_mid]
+        Y_mid = Y[:,:,z_mid]
+
+        # Create rectangles for the jet
+        x_jet = np.array([[1.87, 2.15],
+                          [0.08, 0.275],
+                          [0.43, 0.82]])
+
+        jet_xy = patches.Rectangle((x_jet[0,0], x_jet[1,0]), 
+                                   x_jet[0,1] - x_jet[0,0], 
+                                   x_jet[1,1] - x_jet[1,0], 
+                                   linewidth=1, edgecolor='black', facecolor='none')
+        
+        def y(k):
+            return Y0[:,k].reshape((grid.npx, grid.npy, grid.npz))[:,:,z_mid]
+
+        def y_dmd(k):
+            return ydmd[:,k].reshape((grid.npx, grid.npy, grid.npz))[:,:,z_mid]
+
+        fig, axs = plt.subplots(2, figsize=(10,8), facecolor='w', edgecolor='k')
+
+        # Left subplot: DMDcsp model output
+        cont = axs[0].contourf(X_mid, Y_mid, y(0), nlevels, cmap='coolwarm', vmin=vmin, vmax=vmax)
+        axs[0].scatter(grid.x, grid.y, c='k', s=2)
+        axs[0].set_xlabel('$x$')
+        axs[0].set_ylabel('$y$')
+        axs[0].set_aspect('equal', 'box')
+#       axs[0].set_xlim([1,xmax])
+        axs[0].set_title('Time step $k = %d$' % (0))
+
+        # Right subplot: Ground Truth
+        cont = axs[1].contourf(X_mid, Y_mid, y_dmd(0), nlevels, cmap='coolwarm', vmin=vmin, vmax=vmax)
+        axs[1].scatter(grid.x, grid.y, c='k', s=2)
+        axs[0].set_xlabel('$x$')
+        axs[0].set_ylabel('$y$')
+        axs[0].set_aspect('equal', 'box')
+#       axs[1].set_xlim([1,xmax])
+
+       #plt.clim(vmin, vmax)
+        cbar = fig.colorbar(cont, ax=axs, orientation='vertical')
+       #cbar.ax.set_autoscale_on(True)
+        cbar.set_ticks(np.linspace(vmin, vmax, num=6, endpoint=True))
+
+       #cbar.ax.locator_params(nbins=6)
+
+        def animate(k):
+            print('Animating time step ', k)
+
+            # Clear axes
+            axs[0].clear()
+            axs[1].clear()
+
+            # Left subplot: DMDcsp model output
+            cont = axs[0].contourf(X_mid, Y_mid, y(k), nlevels, cmap='coolwarm', vmin=vmin, vmax=vmax)
+            axs[0].scatter(grid.x, grid.y, c='k', s=2)
+            axs[0].set_xlabel('$x$')
+            axs[0].set_ylabel('$y$')
+            axs[0].set_aspect('equal', 'box')
+    #       axs[0].set_xlim([1,xmax])
+            axs[0].set_title('Time step $k = %d$' % k)
+
+            # Right subplot: Ground Truth
+            cont = axs[1].contourf(X_mid, Y_mid, y_dmd(k), nlevels, cmap='coolwarm', vmin=vmin, vmax=vmax)
+            axs[1].scatter(grid.x, grid.y, c='k', s=2)
+            axs[0].set_xlabel('$x$')
+            axs[0].set_ylabel('$y$')
+            axs[0].set_aspect('equal', 'box')
+    #       axs[1].set_xlim([1,xmax])
+
+            return cont
+
+        anim = animation.FuncAnimation(fig, animate, frames = range(0,n_steps,5), interval=200)
 
         return anim
 

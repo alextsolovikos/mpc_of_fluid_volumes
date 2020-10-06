@@ -91,10 +91,10 @@ class SnapshotData(object):
         self.npz = self.grid.npz
 
         # Input data
-        u = np.loadtxt(self.input_data_file)
+        self.nu = 1
+        u = np.loadtxt(self.input_data_file).reshape(self.nu,-1)
         self.p_total = u.shape[1]
         u = u[:,start:end:timestep_skip]
-        self.nu = u.shape[0]
 
         if end is None:
             end = self.p_total
@@ -105,9 +105,12 @@ class SnapshotData(object):
         v = np.loadtxt(self.flow_data_file)[start:end:timestep_skip,self.idx].T
 
         # Snapshot matrices
-        self.Y0 = v[:,0:self.p-1].T
-        self.Y1 = v[:,1:self.p].T
-        self.U0 = u[:,0:self.p-1].T
+        self.Y0 = v[:,0:self.p-1]
+        self.Y1 = v[:,1:self.p]
+        self.U0 = u[:,0:self.p-1]
+        print('Y0.shape = ', self.Y0.shape)
+        print('Y1.shape = ', self.Y1.shape)
+        print('U0.shape = ', self.U0.shape)
 
         # Time
         self.t = np.expand_dims(np.array(range(self.p)), axis=0)
