@@ -1,4 +1,6 @@
 import numpy as np
+from matplotlib.patches import Ellipse
+from matplotlib import transforms
 
 
 class RBF(object):
@@ -11,10 +13,14 @@ class RBF(object):
     def __init__(self, mu, Sigma):
 
         self.mu = mu
+        self.Sigma = Sigma
         self.Sigma_inv = np.linalg.inv(Sigma)   # I only need Sigma inverse, not Sigma
 
     def value(self, x):
-        return np.exp(-0.5 * (x - self.mu).T @ self.Sigma_inv @ (x - self.mu))
+#       x.reshape(3,-1)
+#       return np.exp(-0.5 * (x - self.mu).T @ self.Sigma_inv @ (x - self.mu))
+#       return np.array([np.exp(-0.5 * (x[:,i] - self.mu).T @ self.Sigma_inv @ (x[:,i] - self.mu)) for i in range(x.shape[1])])
+        return np.exp(-0.5 * np.diag((x - self.mu[:,np.newaxis]).T @ (self.Sigma_inv @ (x - self.mu[:,np.newaxis]))))
 
 
 class GMM(object):
@@ -24,7 +30,7 @@ class GMM(object):
     def __init__(self, n_max = None):
 
         self.components = []            # Empty list of GMM components
-        self.phi = np.empty([])         # Component coefficients
+        self.phi = []                   # Component coefficients
         self.has_components = False     # Trigger of whether GMM has any components
 
 
@@ -63,28 +69,31 @@ class GMM(object):
             if component.mu[0] > x_cutoff:
                 self.remove_component(i)
                 
+    def density(self, x):
+        return sum(component.value(x) for component in self.components)
 
 
-    def propagate(self, dudy, dt):
-        A_inv = np.array([[1., -dudy * dt, 0.],
-                          [0., 1.,        0.],
-                          [0., 0.,        1.]])
+    def propagate(self, u, dt):
 
         # Propagation and deformation of ellipsoid / pdf
-        for component in components:
-            component.mu[0] += component.mu[1] * dudy * dt
+        for component in self.components:
+            dudy = u.derivative()(component.mu[1])
+            A = np.array([[1., dudy * dt, 0.],
+                          [0., 1.,        0.],
+                          [0., 0.,        1.]])
+            A_inv = np.array([[1., -dudy * dt, 0.],
+                              [0., 1.,        0.],
+                              [0., 0.,        1.]])
+
+#           component.mu[0] += component.mu[1] * dudy * dt
+            component.mu[0] += dt * u(component.mu[1])
+            component.Sigma = A @ component.Sigma @ A.T
             component.Sigma_inv = A_inv.T @ component.Sigma_inv @ A_inv
 
 
-    def plot(self):
-        fig, ax = plt.subplots(1, figsize=(10,8), facecolor='w', edgecolor='k')
-
+    def plot(self, ax, facecolor='none', **kwargs):
         for component in self.components:
-            confidence_ellipse(component.mu[:2], component.Sigma[:2], ax, n_std=2)
-
-        ax.set_xlabel('$x$')
-        ax.set_ylabel('$y$')
-        ax.set_aspect('equal', 'box')
+            confidence_ellipse(component.mu[:2], component.Sigma[:2,:2], ax, n_std=2, facecolor=facecolor, **kwargs)
 
 
 
