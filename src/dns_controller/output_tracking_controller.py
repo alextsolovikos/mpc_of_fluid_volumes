@@ -32,6 +32,10 @@ class OutputTrackingController(object):
         self.nu = nu
         self.nz = nz
         self.q = q
+        self.A = A
+        self.B = B
+
+        self.x0 = np.zeros(nx)      # Keep track of the initial condition
 
 #       N = parameters["N"]         # Control horizon
 #       u_min = parameters["u_min"]   # Minimum input
@@ -44,8 +48,6 @@ class OutputTrackingController(object):
         Qbar = C.conj().T @ (q*np.eye(nz)) @ C
         Pbar = sp.linalg.solve_discrete_are(A, np.zeros((nx,nu)), Qbar, np.eye(nu))
         P = C @ Pbar @ C.conj().T
-        print('P = ')
-        print(P)
 
         # Compute Gamma
         Gamma = np.zeros((nz*N,nu*N))
@@ -82,9 +84,11 @@ class OutputTrackingController(object):
         self.W = -W
         self.Gamma = Gamma
         self.OmegaQQGamma = OmegaQQGamma
+        self.uu_max = uu_max
+        self.uu_min = uu_min
 
-    def compute_input(self, x0, zdes):
-        f = self.q * zdes.flatten() @ self.Gamma - x0 @ self.OmegaQQGamma
+    def compute_input(self, zdes):
+        f = self.q * zdes.flatten() @ self.Gamma - self.x0 @ self.OmegaQQGamma
         return quadprog.solve_qp(self.H, f, self.L, self.W, 0)[0]
 
 
