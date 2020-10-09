@@ -1,7 +1,8 @@
 import numpy as np
 import scipy as sp
 from scipy import sparse
-from qpsolvers import solve_qp
+import scipy.linalg
+#from qpsolvers import solve_qp
 import quadprog
 
 class OutputTrackingController(object):
@@ -87,8 +88,8 @@ class OutputTrackingController(object):
         self.uu_max = uu_max
         self.uu_min = uu_min
 
-    def compute_input(self, zdes):
-        f = self.q * zdes.flatten() @ self.Gamma - self.x0 @ self.OmegaQQGamma
+    def compute_input(self, zdes, x0):
+        f = self.q * zdes.flatten() @ self.Gamma - x0 @ self.OmegaQQGamma
         return quadprog.solve_qp(self.H, f, self.L, self.W, 0)[0]
 
 
