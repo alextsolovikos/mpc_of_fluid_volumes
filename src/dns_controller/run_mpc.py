@@ -16,17 +16,17 @@ def run_mpc():
     z_thres = 0.1
 
     # Load controller or initialize if not existing
-    if path.exists('data/controller.pickle'):
-        controller = pickle.load(open('data/controller.pickle', 'rb'))
+    if path.exists('dns_controller/data/controller.pickle'):
+        controller = pickle.load(open('dns_controller/data/controller.pickle', 'rb'))
     else:
-        rsys = np.load('data/rsys.npz')              # Add exceptions
+        rsys = np.load('dns_controller/data/rsys.npz')              # Add exceptions
         controller = OutputTrackingController(rsys['A'], rsys['B'], rsys['C'], N = N, u_min = u_min, u_max = u_max, q = q, R = R)
-        pickle.dump(controller, open('data/controller.pickle', 'wb'))
+        pickle.dump(controller, open('dns_controller/data/controller.pickle', 'wb'))
 
     # Load data
-    mixture = pickle.load(open('data/mixture.pickle', 'rb'))
-    grid = np.load('data/grid.npz')['grid'].T
-    blasius = pickle.load(open('data/blasius.pickle', 'rb'))
+    mixture = pickle.load(open('dns_controller/data/mixture.pickle', 'rb'))
+    grid = np.load('dns_controller/data/grid.npz')['grid'].T
+    blasius = pickle.load(open('dns_controller/data/blasius.pickle', 'rb'))
 
     # Compute desired output
     z_des = np.zeros((N, controller.nz))
@@ -41,13 +41,13 @@ def run_mpc():
 
     # Move mixture back
     mixture.propagate(blasius, - (N - 1) * dt)
-    pickle.dump(mixture, open('data/mixture.pickle', 'wb'))
+    pickle.dump(mixture, open('dns_controller/data/mixture.pickle', 'wb'))
 
     u_star = controller.compute_input(z_des)
 
     controller.x0 = controller.A @ controller.x0 + controller.B @ u_star[0].reshape(-1,1)
 
-    np.savetxt('data/u_star.dat', u_star[0].reshape(-1,1))
+    np.savetxt('dns_controller/data/u_star.dat', u_star[0].reshape(-1,1))
 
     return z_des[0]
 

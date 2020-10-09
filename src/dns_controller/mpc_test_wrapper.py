@@ -22,16 +22,16 @@ if __name__ == '__main__':
     parser.add_argument('--reset_controller', default=False, action='store_true', help='Flag to initialize a new controller.')
     args = parser.parse_args()
 
-    if os.path.exists('data/mixture.pickle'):
-        os.remove('data/mixture.pickle')
+    if os.path.exists('dns_controller/data/mixture.pickle'):
+        os.remove('dns_controller/data/mixture.pickle')
 
-    if args.reset_controller and os.path.exists('data/controller.pickle'):
-        os.remove('data/controller.pickle')
+    if args.reset_controller and os.path.exists('dns_controller/data/controller.pickle'):
+        os.remove('dns_controller/data/controller.pickle')
 
     for k in range(n_steps):
         dk = 400
         if np.mod(k, dk) == 0:
-            copyfile('data/particle_set_%d.dat'%(k//dk), 'data/particle_set.dat')
+            copyfile('dns_controller/data/particle_set_%d.dat'%(k//dk), 'dns_controller/data/particle_set.dat')
             update_gmm.update_gmm()
 #           particles = np.loadtxt('particle_set.dat')
 #           print(particles.shape)
@@ -40,11 +40,11 @@ if __name__ == '__main__':
 
         z_des_hist[k] = run_mpc.run_mpc()
 
-        last_u = np.loadtxt('data/u_star.dat')
+        last_u = np.loadtxt('dns_controller/data/u_star.dat')
         u_star[k] = last_u
 
         # Where is the mixture?
-        mixture = pickle.load(open('data/mixture.pickle', 'rb'))
+        mixture = pickle.load(open('dns_controller/data/mixture.pickle', 'rb'))
         print('Time step: ', k, ', # Components: ', len(mixture.components), ', x_c = ', mixture.components[0].mu[0])
         mixture_hist[k] = mixture
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         Plot mixture
     """
     fig, axs = plt.subplots(2, figsize=(10,6), facecolor='w', edgecolor='k')
-    grid = np.load('data/grid.npz')['grid']
+    grid = np.load('dns_controller/data/grid.npz')['grid']
 
     def animate(k):
 
