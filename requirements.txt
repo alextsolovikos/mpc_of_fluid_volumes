@@ -3,9 +3,8 @@ attrs==20.2.0
 certifi==2020.6.20
 contextlib2==0.6.0.post1
 control==0.8.3
-cvxpy==1.1.5
 cycler==0.10.0
-Cython==0.29.21
+Cython==0.28.2
 ecos==2.0.7.post1
 execnet==1.7.1
 future==0.18.2
