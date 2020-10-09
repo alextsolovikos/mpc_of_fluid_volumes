@@ -25,6 +25,9 @@ if __name__ == '__main__':
     if os.path.exists('dns_controller/data/mixture.pickle'):
         os.remove('dns_controller/data/mixture.pickle')
 
+    if os.path.exists('dns_controller/data/x0.npy'):
+        os.remove('dns_controller/data/x0.npy')
+
     if args.reset_controller and os.path.exists('dns_controller/data/controller.pickle'):
         os.remove('dns_controller/data/controller.pickle')
 
@@ -41,7 +44,7 @@ if __name__ == '__main__':
         z_des_hist[k] = run_mpc.run_mpc()
 
         last_u = np.loadtxt('dns_controller/data/u_star.dat')
-        u_star[k] = last_u
+        u_star[k] = last_u[-1]
 
         # Where is the mixture?
         mixture = pickle.load(open('dns_controller/data/mixture.pickle', 'rb'))
@@ -57,14 +60,14 @@ if __name__ == '__main__':
 
     def animate(k):
 
-        # Clear axis
+        # Clear axes
         axs[0].clear()
         axs[1].clear() 
 
         # Mixture plot
         mixture_hist[k].plot(axs[0], facecolor='r')
         axs[0].scatter(grid[:,0], grid[:,1], s=1, c='k')
-        axs[0].scatter(grid[:,0], grid[:,1], s=-z_des_hist[k]*10, c='b', zorder=20)
+        axs[0].scatter(grid[:,0], grid[:,1], s=-z_des_hist[k] * 0.1, c='b', zorder=20)
         axs[0].set_xlabel('x')
         axs[0].set_ylabel('y')
         axs[0].set_xlim([3,8])

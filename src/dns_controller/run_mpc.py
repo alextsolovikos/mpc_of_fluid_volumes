@@ -11,9 +11,10 @@ def run_mpc():
     u_min = 0.
     u_max = 1.
     q = 1.
-    R = 1.e0
+    R = 1.e3
     dt = 0.0125
-    z_thres = 0.1
+    z_thres = 0.
+    z_min = -200.
 
     # Load controller or initialize if not existing
     if path.exists('dns_controller/data/controller.pickle'):
@@ -23,8 +24,8 @@ def run_mpc():
         controller = OutputTrackingController(rsys['A'], rsys['B'], rsys['C'], N = N, u_min = u_min, u_max = u_max, q = q, R = R)
         pickle.dump(controller, open('dns_controller/data/controller.pickle', 'wb'))
 
-    if path.exists('dns_controller/data/x0.npz'):
-        x0 = np.load('dns_controller/data/x0.npz')
+    if path.exists('dns_controller/data/x0.npy'):
+        x0 = np.load('dns_controller/data/x0.npy')
     else:
         x0 = np.zeros(controller.nx)
 
@@ -42,7 +43,7 @@ def run_mpc():
 
     z_des[z_des < z_thres] = 0.
     z_des[z_des > 1.] = 1.
-    z_des *= -1.
+    z_des *= z_min
 
     # Move mixture back and save
     mixture.propagate(blasius, - (N - 1) * dt)
@@ -50,10 +51,13 @@ def run_mpc():
 
     u_star = controller.compute_input(z_des, x0)
 
-    x0 = controller.A @ x0 + controller.B @ u_star[0].reshape(-1,1)
-    np.save('dns_controller/data/x0.npz', x0)
+    # Propagate state
+    x0 = controller.A @ x0 + (controller.B @ u_star[0].reshape(-1,1)).flatten()
+    np.save('dns_controller/data/x0.npy', x0)
 
-    np.savetxt('dns_controller/data/u_star.dat', u_star[0].reshape(-1,1))
+    f = open('dns_controller/data/u_star.dat', 'ab')
+    np.savetxt(f, u_star[0].reshape(-1,1))
+    f.close()
 
     return z_des[0]
 

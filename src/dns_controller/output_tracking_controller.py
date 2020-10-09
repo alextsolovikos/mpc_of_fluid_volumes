@@ -36,7 +36,7 @@ class OutputTrackingController(object):
         self.A = A
         self.B = B
 
-        self.x0 = np.zeros(nx)      # Keep track of the initial condition
+#       self.x0 = np.zeros(nx)      # Keep track of the initial condition
 
 #       N = parameters["N"]         # Control horizon
 #       u_min = parameters["u_min"]   # Minimum input

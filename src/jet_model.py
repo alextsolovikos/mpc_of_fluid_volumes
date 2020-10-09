@@ -30,7 +30,7 @@ if __name__ == '__main__':
     
 
     # Load training snapshot data
-    training_data = data_loader.SnapshotData(args.training_data_dir, start=0, end=500)
+    training_data = data_loader.SnapshotData(args.training_data_dir, start=0, end=600)
 
     # Train or Load DMDcsp model
     if args.train:
@@ -46,7 +46,7 @@ if __name__ == '__main__':
         # Sparse model
         num = 50
         n_iter = 5
-        gamma = np.logspace(0.3, 1.8, num=num)
+        gamma = np.logspace(0.6, 1.9, num=num)
         stats = model.sparse_batch(gamma, n_iter)
 
         # Choose model
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         model.plot_model_statistics(sys_i)
     
     if args.validate:
-        test_data = data_loader.SnapshotData(args.test_data_dir, start=0, end=500)
+        test_data = data_loader.SnapshotData(args.test_data_dir, start=0, end=700)
         animation = model.validate_model(sys_i, test_data)
         plt.show()
 
