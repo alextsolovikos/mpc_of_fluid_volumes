@@ -77,18 +77,20 @@ class GMM(object):
 
         # Propagation and deformation of ellipsoid / pdf
         for component in self.components:
-            dudy = u.derivative()(component.mu[1])
-            A = np.array([[1., dudy * dt, 0.],
-                          [0., 1.,        0.],
-                          [0., 0.,        1.]])
-            A_inv = np.array([[1., -dudy * dt, 0.],
-                              [0., 1.,        0.],
-                              [0., 0.,        1.]])
-
-#           component.mu[0] += component.mu[1] * dudy * dt
+            # Propagate mean
             component.mu[0] += dt * u(component.mu[1])
-            component.Sigma = A @ component.Sigma @ A.T
-            component.Sigma_inv = A_inv.T @ component.Sigma_inv @ A_inv
+
+            # Propagate covariance
+#           dudy = u.derivative()(component.mu[1])
+#           A = np.array([[1., dudy * dt, 0.],
+#                         [0., 1.,        0.],
+#                         [0., 0.,        1.]])
+#           A_inv = np.array([[1., -dudy * dt, 0.],
+#                             [0., 1.,        0.],
+#                             [0., 0.,        1.]])
+
+#           component.Sigma = A @ component.Sigma @ A.T
+#           component.Sigma_inv = A_inv.T @ component.Sigma_inv @ A_inv
 
 
     def plot(self, ax, facecolor='none', **kwargs):

@@ -1,0 +1,5 @@
+python3 tracer_particles.py --n_particles 1000 --center 3.75 0.15 0.625 --axes 0.75 0.1 0.225 --rotations 0. 0. --output particle_set_0.dat
+python3 tracer_particles.py --n_particles 1000 --center 3.50 0.12 0.600 --axes 0.50 0.08 0.175 --rotations 0. 0. --output particle_set_1.dat
+python3 tracer_particles.py --n_particles 1000 --center 4.00 0.17 0.700 --axes 0.40 0.12 0.15 --rotations 0. 0. --output particle_set_2.dat
+python3 tracer_particles.py --n_particles 1000 --center 3.25 0.16 0.625 --axes 0.60 0.11 0.25 --rotations 0. 0. --output particle_set_3.dat
+python3 tracer_particles.py --n_particles 1000 --center 3.60 0.14 0.625 --axes 0.80 0.06 0.25 --rotations 0. 0. --output particle_set_4.dat
