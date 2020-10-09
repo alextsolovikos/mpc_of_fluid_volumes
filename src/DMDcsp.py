@@ -542,11 +542,11 @@ class DMDcsp(object):
         plt.grid(True)
     #   axs.set_xlim([0,30])
     #   axs.set_ylim([0,100])
-        plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/Ploss.eps')
+#       plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/Ploss.eps')
 
 
         # Plot eigenvalues
-        lamb = np.diag(self.Lambda)
+        lamb = self.sys_eig[0]
         lamb_sp = self.sys_eig[sys_i]
         print('eigenvalue magnitudes:')
         print(np.abs(lamb_sp))
@@ -571,7 +571,7 @@ class DMDcsp(object):
     #   axs.set_xlim([0.97, 1.005])
     #   axs.set_ylim([-0.25, 0.25])
         plt.grid(True)
-        plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/eigenvalues.eps')
+#       plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/eigenvalues.eps')
 
 
         # Plot frequencies
@@ -580,6 +580,8 @@ class DMDcsp(object):
         # Full system
         freq = np.abs(np.imag(np.log(lamb))/(2.0*np.pi)/Ts)
         ampl = np.abs(z0[0])
+        print(freq.shape)
+        print(ampl.shape)
 
         # Sparse system
         freq_sp = np.abs(np.imag(np.log(lamb_sp))/(2.0*np.pi)/Ts)
@@ -598,7 +600,7 @@ class DMDcsp(object):
     #   axs.set_xticks(np.arange(0, 6.5, 1.0))
     #   axs.set_yticks(np.arange(0, 101, 20))
         plt.grid(True)
-        plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/amplitudes.eps')
+#       plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/amplitudes.eps')
 
         plt.show()
 
@@ -690,14 +692,15 @@ class DMDcsp(object):
             axs[0].set_ylabel('$y$')
             axs[0].set_aspect('equal', 'box')
     #       axs[0].set_xlim([1,xmax])
-            axs[0].set_title('Time step $k = %d$' % k)
+            axs[0].set_title('DNS Simulation: Time step $k = %d$' % k)
 
             # Right subplot: Ground Truth
             cont = axs[1].contourf(X_mid, Y_mid, y_dmd(k), nlevels, cmap='coolwarm', vmin=vmin, vmax=vmax)
             axs[1].scatter(grid.x, grid.y, c='k', s=2)
-            axs[0].set_xlabel('$x$')
-            axs[0].set_ylabel('$y$')
-            axs[0].set_aspect('equal', 'box')
+            axs[1].set_xlabel('$x$')
+            axs[1].set_ylabel('$y$')
+            axs[1].set_aspect('equal', 'box')
+            axs[1].set_title('DMD Approximation: Time step $k = %d$' % k)
     #       axs[1].set_xlim([1,xmax])
 
             return cont

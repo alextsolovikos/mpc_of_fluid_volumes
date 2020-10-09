@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # Train or Load DMDcsp model
     if args.train:
         # Train model
-        q = 40
+        q = 30
         Y0 = training_data.Y0
         Y1 = training_data.Y1
         U0 = training_data.U0
@@ -46,7 +46,7 @@ if __name__ == '__main__':
         # Sparse model
         num = 50
         n_iter = 5
-        gamma = np.logspace(0., 2., num=num)
+        gamma = np.logspace(0.3, 1.8, num=num)
         stats = model.sparse_batch(gamma, n_iter)
 
         # Choose model
@@ -69,6 +69,10 @@ if __name__ == '__main__':
         # Load existing model
         model = pickle.load(open('data/' + args.model_name + '_full.p', 'rb'))
         sys_i = int(input('Choose the sparse model id to use: '))
+
+    # Save A, B, C matrices of selected model
+    np.savez('data/rsys.npz', A = model.rsys[sys_i].A, B = model.rsys[sys_i].B, C = model.rsys[sys_i].C)
+    np.savez('data/grid.npz', grid = training_data.grid.grid)
 
 
     if args.stats:
