@@ -1,7 +1,8 @@
 import numpy as np
 import scipy as sp
+import scipy.linalg
 from scipy import sparse
-from qpsolvers import solve_qp
+#from qpsolvers import solve_qp
 import quadprog
 
 class OutputTrackingController(object):
@@ -46,7 +47,7 @@ class OutputTrackingController(object):
 
         # Compute final cost for stability
         Qbar = C.conj().T @ (q*np.eye(nz)) @ C
-        Pbar = sp.linalg.solve_discrete_are(A, np.zeros((nx,nu)), Qbar, np.eye(nu))
+        Pbar = scipy.linalg.solve_discrete_are(A, np.zeros((nx,nu)), Qbar, np.eye(nu))
         P = C @ Pbar @ C.conj().T
 
         # Compute Gamma
