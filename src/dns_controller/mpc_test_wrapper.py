@@ -28,6 +28,9 @@ if __name__ == '__main__':
     if os.path.exists('dns_controller/data/x0.npy'):
         os.remove('dns_controller/data/x0.npy')
 
+    if os.path.exists('dns_controller/data/u_star.dat'):
+        os.remove('dns_controller/data/u_star.dat')
+
     if args.reset_controller and os.path.exists('dns_controller/data/controller.pickle'):
         os.remove('dns_controller/data/controller.pickle')
 

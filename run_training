@@ -1,3 +1,3 @@
 #python src/jet_model.py --training_data_dir /Volumes/Samsung_T5/research-data/mpc_of_lsms/cases/training_cases/training_sines/snapshots/ --test_data_dir /Volumes/Samsung_T5/research-data/mpc_of_lsms/cases/training_cases/training_sines/snapshots/ --model test_model --stats --validate --train
 
-python src/jet_model.py --training_data_dir /Volumes/Samsung_T5/research-data/mpc_of_lsms/cases/training_cases/training_sines_varying_mag/snapshots/ --test_data_dir /Volumes/Samsung_T5/research-data/mpc_of_lsms/cases/training_cases/training_sines_varying_mag/snapshots/ --model test_model --stats --validate --train
+./src/jet_model.py --training_data_dir /Volumes/Samsung_T5/research-data/mpc_of_lsms/cases/training_cases/training_sines_varying_mag/snapshots/ --test_data_dir /Volumes/Samsung_T5/research-data/mpc_of_lsms/cases/training_cases/training_sines_varying_mag/snapshots/ --model test_model --stats --validate --train
