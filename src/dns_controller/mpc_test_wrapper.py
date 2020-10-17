@@ -12,7 +12,7 @@ import update_gmm
 
 if __name__ == '__main__':
 
-    n_steps = 1000
+    n_steps = 400
     u_star = np.zeros(n_steps)
     mixture_hist = n_steps * [None]
     z_des_hist = np.zeros((n_steps, 350))
@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
         z_des_hist[k] = run_mpc.run_mpc()
 
-        last_u = np.loadtxt('dns_controller/data/u_star.dat')
+        last_u = np.loadtxt('dns_controller/data/u_star.dat').reshape(-1)
         u_star[k] = last_u[-1]
 
         # Where is the mixture?

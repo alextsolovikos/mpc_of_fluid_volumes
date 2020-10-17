@@ -16,6 +16,8 @@ def run_mpc():
     z_thres = 0.
     z_min = -200.
 
+    print('Hello')
+
     # Load controller or initialize if not existing
     if path.exists('dns_controller/data/controller.pickle'):
         controller = pickle.load(open('dns_controller/data/controller.pickle', 'rb'))
@@ -45,6 +47,7 @@ def run_mpc():
     z_des[z_des > 1.] = 1.
     z_des *= z_min
 
+    
     # Move mixture back and save
     mixture.propagate(blasius, - (N - 1) * dt)
     pickle.dump(mixture, open('dns_controller/data/mixture.pickle', 'wb'))
