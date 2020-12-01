@@ -7,16 +7,14 @@ import gmm
 
 def run_mpc():
 
-    N = 100  # Time horizon
+    N = 50  # Time horizon
     u_min = 0.
     u_max = 1.
     q = 1.
-    R = 1.e3
+    R = 5.e2
     dt = 0.0125
     z_thres = 0.
     z_min = -200.
-
-    print('Hello')
 
     # Load controller or initialize if not existing
     if path.exists('dns_controller/data/controller.pickle'):

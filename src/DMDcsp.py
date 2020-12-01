@@ -251,6 +251,7 @@ class DMDcsp(object):
         J_ref = np.real(alpha_ref.conj().T @ self.P @ alpha_ref - 2*np.real(self.d.conj().T @ alpha_ref) + self.s)  # Square error
 
         P_loss = 100*np.sqrt(J_ref/self.s)
+        print('s = ', self.s)
 
         # Truncate modes
         E = np.eye(self.q)[:,nonzero]
@@ -540,9 +541,9 @@ class DMDcsp(object):
     #   axs.set_xticks(np.arange(0, 31, 5))
     #   axs.set_yticks(np.arange(0, 101, 20))
         plt.grid(True)
-    #   axs.set_xlim([0,30])
-    #   axs.set_ylim([0,100])
-#       plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/Ploss.eps')
+        axs.set_xlim([0,30])
+        axs.set_ylim([0,100])
+        plt.savefig('/Users/atsol/research/papers/AIAA-MPC-of-LSMS/new_figures/Ploss.eps')
 
 
         # Plot eigenvalues
@@ -571,7 +572,7 @@ class DMDcsp(object):
     #   axs.set_xlim([0.97, 1.005])
     #   axs.set_ylim([-0.25, 0.25])
         plt.grid(True)
-#       plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/eigenvalues.eps')
+        plt.savefig('/Users/atsol/research/papers/AIAA-MPC-of-LSMS/new_figures/eigenvalues.eps')
 
 
         # Plot frequencies
@@ -595,12 +596,12 @@ class DMDcsp(object):
         axs.set_axisbelow(True)
         axs.set_xlabel('$\mathrm{Im}(\log(\lambda_i))$')
         axs.set_ylabel('$\|x(0)\|$')
-    #   axs.set_xlim([0, 6])
-    #   axs.set_ylim([0, 100])
+        axs.set_xlim([0, 23])
+        axs.set_ylim([0, 1.4])
     #   axs.set_xticks(np.arange(0, 6.5, 1.0))
     #   axs.set_yticks(np.arange(0, 101, 20))
         plt.grid(True)
-#       plt.savefig('/Users/atsol/research/papers/dmdcsp-paper/figures/amplitudes.eps')
+        plt.savefig('/Users/atsol/research/papers/AIAA-MPC-of-LSMS/new_figures/amplitudes.eps')
 
         plt.show()
 
@@ -623,6 +624,12 @@ class DMDcsp(object):
         sys = self.rsys[sys_i]
         x0 = np.linalg.pinv(sys.C) @ data.Y0[:,0]
         xdmd, ydmd = sys.lsim(x0, data.U0)
+
+        print('ydmd.shape = ', ydmd.shape)
+        print('Y0.shape = ', Y0.shape)
+        error = np.linalg.norm((Y0 - ydmd), ord='fro')/ \
+                  np.linalg.norm(Y0, ord='fro')*100
+        print('Reconstruction error: ', error)
 
         nlevels = 41
         vmin = -0.1

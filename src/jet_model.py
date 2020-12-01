@@ -28,11 +28,12 @@ if __name__ == '__main__':
     parser.add_argument('--model', dest='model_name', help='Model pickle object location.')
     parser.add_argument('--stats', default=False, action='store_true', help='Flag to train a new DMDcsp model.')
     parser.add_argument('--validate', default=False, action='store_true', help='Flag to train a new DMDcsp model.')
+    parser.add_argument('--input', default=False, action='store_true', help='Flag to plot input.')
     args = parser.parse_args()
     
 
     # Load training snapshot data
-    training_data = data_loader.SnapshotData(args.training_data_dir, start=0, end=600)
+    training_data = data_loader.SnapshotData(args.training_data_dir, start=100, end=260)
 
     # Train or Load DMDcsp model
     if args.train:
@@ -46,9 +47,9 @@ if __name__ == '__main__':
         model = DMDcsp.DMDcsp(Y0, Y1, U0, q=q)
 
         # Sparse model
-        num = 50
+        num = 100
         n_iter = 5
-        gamma = np.logspace(0.6, 1.9, num=num)
+        gamma = np.logspace(-1.5, 1.8, num=num)
         stats = model.sparse_batch(gamma, n_iter)
 
         # Choose model
@@ -73,15 +74,33 @@ if __name__ == '__main__':
         sys_i = int(input('Choose the sparse model id to use: '))
 
     # Save A, B, C matrices of selected model
-    np.savez('data/rsys.npz', A = model.rsys[sys_i].A, B = model.rsys[sys_i].B, C = model.rsys[sys_i].C)
-    np.savez('data/grid.npz', grid = training_data.grid.grid)
+    np.savez('data/' + args.model_name + '_rsys.npz', A = model.rsys[sys_i].A, B = model.rsys[sys_i].B, C = model.rsys[sys_i].C)
+    np.savez('data/' + args.model_name + '_grid.npz', grid = training_data.grid.grid)
 
 
     if args.stats:
         model.plot_model_statistics(sys_i)
     
+    if args.input:
+        test_data = data_loader.SnapshotData(args.training_data_dir, start=0, end=700)
+
+        # Plot input
+        fig, axs = plt.subplots(1, figsize=(6,4), facecolor='w', edgecolor='k')
+        plt.subplots_adjust(hspace=0.6, left=0.18, right=0.95, top=0.95, bottom=0.18)
+
+        axs.plot(test_data.U0.flatten(), c='k', zorder=9, clip_on=False)
+        axs.set_axisbelow(True)
+        axs.set_xlabel('$k$')
+        axs.set_ylabel('$u(k)$')
+        plt.grid(True)
+        axs.set_xlim([0,700])
+        axs.set_ylim([0,1.1])
+        plt.savefig('/Users/atsol/research/papers/AIAA-MPC-of-LSMS/new_figures/training_input.eps')
+        plt.show()
+
+
     if args.validate:
-        test_data = data_loader.SnapshotData(args.test_data_dir, start=0, end=700)
+        test_data = data_loader.SnapshotData(args.test_data_dir, start=0, end=200)
         animation = model.validate_model(sys_i, test_data)
         plt.show()
 

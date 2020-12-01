@@ -12,7 +12,7 @@ import update_gmm
 
 if __name__ == '__main__':
 
-    n_steps = 400
+    n_steps = 200
     u_star = np.zeros(n_steps)
     mixture_hist = n_steps * [None]
     z_des_hist = np.zeros((n_steps, 350))
