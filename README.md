@@ -8,7 +8,7 @@ In this work, a novel flow control strategy involving steering large scale motio
 
 ### Example Results:
 
-- Moving fluid volumes towards the wall:
+- Moving fluid volumes toward the wall:
 
 ![](animations/dns_animation.gif)
 
