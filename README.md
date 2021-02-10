@@ -1,4 +1,4 @@
-# MPC of LSMS
+# Model Predictive Control of Fluid Volumes
 Code developed for the paper *"Model predictive control of coherent structures in wall-bounded flows"* by Alex Tsolovikos, Saikishan Suryanarayanan, Efstathios Bakolas, and David Goldstein. Paper under review in AIAA Journal.
 
 ### Abstract:
