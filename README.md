@@ -1,5 +1,5 @@
 # Model Predictive Control of Fluid Volumes
-Code developed for the paper *"Model Predictive Control of Material Volumes in Wall-Bounded Flows With Application to Vortical Structures"* by Alex Tsolovikos, Saikishan Suryanarayanan, Efstathios Bakolas, and David Goldstein. Paper under review in AIAA Journal.
+Code developed for the paper [*"Model Predictive Control of Material Volumes With Application to Vortical Structures"* by Alex Tsolovikos, Saikishan Suryanarayanan, Efstathios Bakolas, and David Goldstein. AIAA Journal 59 (10), 4057-4070.](https://arc.aiaa.org/doi/abs/10.2514/1.J060413)
 
 ### Abstract:
 
